@@ -1,0 +1,11 @@
+application: asana-connector
+version: 0-0-1
+runtime: go
+api_version: go1
+threadsafe: true
+
+handlers:
+
+## goapp
+- url: /.*
+  script: _go_app
