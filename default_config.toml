@@ -1,6 +1,6 @@
 [Asana]
-token  = "0/8430e2bb959cb6b899a7eabcc81978c0"
+token  = ""
 
 [Bq]
-project = "f81-growlio-staging"
-dataset = "asana_view"
+project = ""
+dataset = ""
