@@ -10,19 +10,20 @@ import (
 
 const (
 	GET_SECTION_WITH_PROJECT_URL = "https://app.asana.com/api/1.0/projects/PROJECT_ID/sections?opt_fields=name,created_at"
-	PROJECT_URL_KEY = "PROJECT_ID"
+	PROJECT_URL_KEY              = "PROJECT_ID"
 )
 
 type Section struct {
-	ProjectId int64
-	Id        int64
-	Name      string
-	CreatedAt time.Time
+	ProjectId  int64
+	Id         int64
+	StoryPoint int64
+	Name       string
+	CreatedAt  time.Time
 }
 
 type SectionJSON struct {
-	Id        int64  `json:"id,omitempty"`
-	Name      string `json:"name,omitempty"`
+	Id        int64     `json:"id,omitempty"`
+	Name      string    `json:"name,omitempty"`
 	CreatedAt time.Time `json:"created_at,omitempty"`
 }
 
@@ -74,5 +75,26 @@ func parseBlobToSectionJSON(blob []byte) ([]SectionJSON, error) {
 }
 
 func convertSection(projectId int64, secJson SectionJSON) (Section) {
-	return Section{Id: secJson.Id, Name: secJson.Name, ProjectId: projectId, CreatedAt: secJson.CreatedAt}
+	name, point := splitNameAndPoint(secJson.Name)
+	return Section{
+		ProjectId:  projectId,
+		Id:         secJson.Id,
+		StoryPoint: point,
+		Name:       name,
+		CreatedAt:  secJson.CreatedAt,
+	}
+}
+
+func splitNameAndPoint(originalName string) (string, int64) {
+	var lastIndex int
+	lastIndex = strings.LastIndex(originalName, " ")
+	if (lastIndex < 1) {
+		return originalName, 0
+	}
+	storyPointStr := originalName[lastIndex+1 : len(originalName)]
+	storyPoint, parseErr := strconv.ParseInt(storyPointStr, 10, 32)
+	if (parseErr != nil) {
+		return originalName, 0
+	}
+	return originalName[0:lastIndex], storyPoint
 }
