@@ -7,6 +7,7 @@ import (
 	"google.golang.org/appengine"
 	"context"
 	"time"
+	"os"
 )
 
 const(
@@ -28,6 +29,7 @@ func Main(w http.ResponseWriter, r *http.Request) {
 	projects, sections, tasks, tags, users, loadErr := load(ctx)
 	if loadErr != nil{
 		log.Print(loadErr)
+		os.Exit(ERROR_LOADING)
 	}
 	log.Printf("プロジェクト数：%#v", len(projects))
 	log.Printf("セクション数：%#v", len(sections))
@@ -40,13 +42,19 @@ func Main(w http.ResponseWriter, r *http.Request) {
 	var bqStructs []CommonBqStruct
 	bqStructs = append(bqStructs, CommonBqStruct{"project", projects})
 	bqStructs = append(bqStructs, CommonBqStruct{"section", sections})
-	//bqStructs = append(bqStructs, CommonBqStruct{"task", tasks})
+	bqStructs = append(bqStructs, CommonBqStruct{"task", tasks})
 	bqStructs = append(bqStructs, CommonBqStruct{"tag", tags})
 	bqStructs = append(bqStructs, CommonBqStruct{"user", users})
+	initTableErr := initAsanaData(ctx)
+	if(initTableErr != nil){
+		log.Printf("ERROR:", initTableErr)
+		os.Exit(ERROR_DELETING)
+	}
 	uploadErr := uploadBq(ctx, bqStructs)
 	//uploadErr := putSample(ctx)
 	if (uploadErr != nil){
 		log.Printf("ERROR:", uploadErr)
+		os.Exit(ERROR_UPLOADING)
 	}
 	log.Println("All done!!!")
 
@@ -85,13 +93,11 @@ func load(ctx context.Context)([]Project, []Section, []Task, []Tag, []User, erro
 		return nil, nil, nil, nil, nil, sectionErr
 	}
 
-	//log.Println("task loading...")
-	//tasks, taskErr := loadTasksWithSections(ctx, sections)
-	//if taskErr != nil {
-	//	return nil, nil, nil, nil, nil, taskErr
-	//}
-	//
-	//return projects, sections, tasks, nil, nil, nil
+	log.Println("task loading...")
+	tasks, taskErr := loadTasksWithSections(ctx, sections)
+	if taskErr != nil {
+		return nil, nil, nil, nil, nil, taskErr
+	}
 
 	log.Println("tag loading...")
 	tags, tagErr := loadTags(ctx)
@@ -105,5 +111,5 @@ func load(ctx context.Context)([]Project, []Section, []Task, []Tag, []User, erro
 		return nil, nil, nil, nil, nil, userErr
 	}
 
-	return projects, sections, nil, tags, users, nil
+	return projects, sections, tasks, tags, users, nil
 }

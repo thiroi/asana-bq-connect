@@ -9,30 +9,34 @@ import (
 )
 
 const (
-	GET_TASK_WITH_SECTION_URL = "https://app.asana.com/api/1.0/sections/SECTION_ID/tasks?opt_fields=name,assignee,created_at,tags"
+	GET_TASK_WITH_SECTION_URL = "https://app.asana.com/api/1.0/sections/SECTION_ID/tasks?opt_fields=name,assignee,completed,completed_at,created_at,tags"
 	SECTION_URL_KEY           = "SECTION_ID"
+	DELAYED_TAG_ID            = 770623178101952
+	UNEXPECTED_TAG_ID         = 770623178101955
 )
 
 type Task struct {
+	ProjectId   int64
+	SectionId   int64
 	Id          int64
-	Projectid   int64
-	Sectionid   int64
 	Name        string
+	AssigneeId  int64
+	Delayed     bool
+	Unexpected  bool
+	TagIds      string
 	Completed   bool
-	Completed_at time.Time
-	Assigneeid  int64
-	Created_at   time.Time
-	Tagids      []int64
+	CompletedAt time.Time
+	CreatedAt   time.Time
 }
 
 type TaskJSON struct {
-	Id          int64      `json:"id,omitempty"`
-	Name        string     `json:"name,omitempty"`
-	Completed   bool       `json:"completed,omitempty"`
-	Completed_at time.Time `json:"completedAt,omitempty"`
-	Assignee    Assignee   `json:"assignee,omitempty"`
-	Tags        []TaskTag  `json:"tags,omitempty"`
-	Created_at   time.Time `json:"created_at,omitempty"`
+	Id          int64     `json:"id,omitempty"`
+	Name        string    `json:"name,omitempty"`
+	Completed   bool      `json:"completed,omitempty"`
+	CompletedAt time.Time `json:"completed_at,omitempty"`
+	Assignee    Assignee  `json:"assignee,omitempty"`
+	Tags        []TaskTag `json:"tags,omitempty"`
+	CreatedAt   time.Time `json:"created_at,omitempty"`
 }
 
 type TaskTag struct {
@@ -91,21 +95,35 @@ func parseBlobToTaskJSON(blob []byte) ([]TaskJSON, error) {
 }
 
 func convertTask(projectId, sectionId int64, taskJson TaskJSON) (Task) {
-	var tagIds []int64
 	jsonTagIds := taskJson.Tags
-	for i:=0; i< len(jsonTagIds); i++ {
-		tagIds = append(tagIds, jsonTagIds[i].Id)
+	var tagIds string
+	if len(jsonTagIds) > 0 {
+		tagIds = strconv.Itoa(int(jsonTagIds[0].Id))
+		for i := 1; i < len(jsonTagIds); i++ {
+			tagIds = tagIds + "," + strconv.Itoa(int(jsonTagIds[i].Id))
+		}
 	}
 
 	return Task{
+		ProjectId:   projectId,
+		SectionId:   sectionId,
 		Id:          taskJson.Id,
-		Projectid:   projectId,
-		Sectionid:   sectionId,
 		Name:        taskJson.Name,
+		AssigneeId:  taskJson.Assignee.Id,
+		Delayed:     hasTagId(jsonTagIds, DELAYED_TAG_ID),
+		Unexpected:  hasTagId(jsonTagIds, UNEXPECTED_TAG_ID),
+		TagIds:      tagIds,
 		Completed:   taskJson.Completed,
-		Completed_at: taskJson.Completed_at,
-		Assigneeid:  taskJson.Assignee.Id,
-		Created_at:   taskJson.Created_at,
-		Tagids:      tagIds,
+		CompletedAt: taskJson.CompletedAt,
+		CreatedAt:   taskJson.CreatedAt,
 	}
+}
+
+func hasTagId(tags []TaskTag, tagId int64) bool {
+	for i := 0; i < len(tags); i++ {
+		if tags[i].Id == tagId {
+			return true
+		}
+	}
+	return false
 }
