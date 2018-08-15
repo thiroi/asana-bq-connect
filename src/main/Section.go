@@ -31,20 +31,17 @@ type sectionJSONWrap struct {
 	SectionJSONs []SectionJSON `json:"data"`
 }
 
-func loadSectionsWithProjects(ctx context.Context, projects []Project) ([]Section, error) {
+func loadSectionsWithProjects(ctx context.Context, project Project) ([]Section, error) {
 	var sections []Section
-	for i := 0; i < len(projects); i++ {
-		projectId := projects[i].Id
-		sectionsByte, loadErr := loadAsana(ctx, makeSectionUrl(projectId))
-		if loadErr != nil {
-			return nil, loadErr
-		}
-		wk, parseErr := parseBlobToSectionWithProjectId(projects[i].Id, sectionsByte)
-		if parseErr != nil {
-			return nil, parseErr
-		}
-		sections = append(sections, wk...)
+	sectionsByte, loadErr := loadAsana(ctx, makeSectionUrl(project.Id))
+	if loadErr != nil {
+		return nil, loadErr
 	}
+	wk, parseErr := parseBlobToSectionWithProjectId(project.Id, sectionsByte)
+	if parseErr != nil {
+		return nil, parseErr
+	}
+	sections = append(sections, wk...)
 	return sections, nil
 }
 

@@ -19,15 +19,20 @@ type Project struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 }
 
-func filterProject(prefix string, projects []Project)([]Project){
-	var filteredProjects []Project
+func filterProject(prefix string, projects []Project)(Project){
+	var filteredProject = Project{}
 	for i := 0; i < len(projects); i++ {
 		project := projects[i]
 		if strings.Contains(project.Name, prefix){
-			filteredProjects = append(filteredProjects, project)
+			//PREFIXを満たしており、かつ最新のものだけをとってくる
+			if (filteredProject == Project{}){
+				filteredProject = project
+			} else if (project.CreatedAt.After(filteredProject.CreatedAt)){
+				filteredProject = project
+			}
 		}
 	}
-	return filteredProjects
+	return filteredProject
 }
 
 func loadProjects(ctx context.Context)([]Project, error){

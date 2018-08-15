@@ -7,5 +7,8 @@ import (
 
 func init() {
 	// net/http
-	http.HandleFunc("/01", main.Main)
+	http.HandleFunc("/init", main.DailyInitializer)
+	http.HandleFunc("/connect", main.DailyConnector)
+	http.HandleFunc("/connectHistory", main.HistoryConnector)
+	http.HandleFunc("/initHistory", main.HistoryInitializer)
 }
