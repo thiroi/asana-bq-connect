@@ -1,0 +1,51 @@
+cron:
+- description: "init Asana on Monday"
+  url: /init
+  schedule: every monday 07:00
+  timezone: Asia/Tokyo
+
+- description: "connect Asana on Monday"
+  url: /connect
+  schedule: every monday 08:00
+  timezone: Asia/Tokyo
+
+- description: "init Asana on Tuesday"
+  url: /init
+  schedule: every tuesday 07:00
+  timezone: Asia/Tokyo
+
+- description: "connect Asana on Tuesday"
+  url: /connect
+  schedule: every tuesday 08:00
+  timezone: Asia/Tokyo
+  
+- description: "init Asana on Wednesday"
+  url: /init
+  schedule: every wednesday 07:00
+  timezone: Asia/Tokyo
+
+- description: "connect Asana on Wednesday"
+  url: /connect
+  schedule: every wednesday 08:00
+  timezone: Asia/Tokyo
+
+- description: "init Asana on Thursday"
+  url: /init
+  schedule: every thursday 07:00
+  timezone: Asia/Tokyo
+
+- description: "connect Asana on Thursday"
+  url: /connect
+  schedule: every thursday 08:00
+  timezone: Asia/Tokyo
+
+- description: "init Asana on Friday"
+  url: /init
+  schedule: every friday 07:00
+  timezone: Asia/Tokyo
+
+- description: "connect Asana on Friday"
+  url: /connect
+  schedule: every friday 08:00
+  timezone: Asia/Tokyo
+

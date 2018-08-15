@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	"google.golang.org/appengine/log"
 	"net/http"
 	"fmt"
 	"time"
@@ -12,33 +12,33 @@ import (
 
 func connect(w http.ResponseWriter, r *http.Request, projectPrefix string, history bool) {
 	fmt.Fprint(w, "Now Running!")
-	log.Println("===Start===")
+	ctx := appengine.NewContext(r)
+	log.Infof(ctx, "===Start===")
 	start_time := time.Now()
 	// initialization
-	log.Println("Now initializing...")
+	log.Infof(ctx,"Now initializing...")
 	initConfig()
-	ctx := appengine.NewContext(r)
-	log.Println("INITIALIZED!!!")
+	log.Infof(ctx,"INITIALIZED!!!")
 
 	// data load
-	log.Println("Now Data Loading...")
+	log.Infof(ctx,"Now Data Loading...")
 	project, sections, tasks, tags, users, loadErr := load(ctx, projectPrefix)
 	if loadErr != nil {
-		log.Print(loadErr)
+		log.Errorf(ctx, loadErr.Error())
 		os.Exit(ERROR_LOADING)
 	}
-	log.Printf("プロジェクト数：%#v", 1)
-	log.Printf("セクション数：%#v", len(sections))
-	log.Printf("タスク数：%#v", len(tasks))
-	log.Printf("タグ数：%#v", len(tags))
-	log.Printf("ユーザー数：%#v", len(users))
+	log.Infof(ctx,"プロジェクト数：%#v", 1)
+	log.Infof(ctx,"セクション数：%#v", len(sections))
+	log.Infof(ctx,"タスク数：%#v", len(tasks))
+	log.Infof(ctx,"タグ数：%#v", len(tags))
+	log.Infof(ctx,"ユーザー数：%#v", len(users))
 
 	// data upload
-	log.Println("Let's put data!")
+	log.Infof(ctx,"Let's put data!")
 	var bqStructs []CommonBqStruct
 	if (history == true) {
 		if hasData(ctx, "project_history", projectPrefix) == true {
-			log.Println("BACKUP ERROR")
+			log.Infof(ctx,"BACKUP ERROR")
 			os.Exit(ERROR_BACKUP)
 		}
 		bqStructs = append(bqStructs, CommonBqStruct{"project_history", project})
@@ -56,15 +56,15 @@ func connect(w http.ResponseWriter, r *http.Request, projectPrefix string, histo
 	uploadErr := uploadBq(ctx, bqStructs)
 	//uploadErr := putSample(ctx)
 	if (uploadErr != nil) {
-		log.Printf("ERROR:", uploadErr)
+		log.Errorf(ctx,"ERROR:", uploadErr)
 		os.Exit(ERROR_UPLOADING)
 	}
-	log.Println("All done!!!")
+	log.Infof(ctx,"All done!!!")
 
 	end_time := time.Now()
 	total := end_time.Sub(start_time)
-	log.Printf("TOTAL TIME:%#v", total.Seconds())
-	log.Println("===End===")
+	log.Infof(ctx,"TOTAL TIME:%#v", total.Seconds())
+	log.Infof(ctx,"===End===")
 }
 
 //func loadTest(ctx context.Context){
@@ -83,7 +83,7 @@ func connect(w http.ResponseWriter, r *http.Request, projectPrefix string, histo
 //}
 
 func load(ctx context.Context, projectFilter string) (Project, []Section, []Task, []Tag, []User, error) {
-	log.Println("project loading...")
+	log.Infof(ctx,"project loading...")
 	originalProjects, projectErr := loadProjects(ctx)
 	if projectErr != nil {
 		return Project{}, nil, nil, nil, nil, projectErr
@@ -91,25 +91,25 @@ func load(ctx context.Context, projectFilter string) (Project, []Section, []Task
 	//GAEの制限上、大量のプロジェクトをターゲットにすると死ぬので制御
 	project := filterProject(projectFilter, originalProjects)
 
-	log.Println("section loading...")
+	log.Infof(ctx,"section loading...")
 	sections, sectionErr := loadSectionsWithProjects(ctx, project)
 	if sectionErr != nil {
 		return Project{}, nil, nil, nil, nil, sectionErr
 	}
 
-	log.Println("task loading...")
+	log.Infof(ctx,"task loading...")
 	tasks, taskErr := loadTasksWithSections(ctx, sections)
 	if taskErr != nil {
 		return Project{}, nil, nil, nil, nil, taskErr
 	}
 
-	log.Println("tag loading...")
+	log.Infof(ctx,"tag loading...")
 	tags, tagErr := loadTags(ctx)
 	if tagErr != nil {
 		return Project{}, nil, nil, nil, nil, tagErr
 	}
 
-	log.Println("user loading...")
+	log.Infof(ctx,"user loading...")
 	users, userErr := loadUsers(ctx)
 	if userErr != nil {
 		return Project{}, nil, nil, nil, nil, userErr

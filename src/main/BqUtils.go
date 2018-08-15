@@ -3,7 +3,7 @@ package main
 import (
 	"cloud.google.com/go/bigquery"
 	"golang.org/x/net/context"
-	"log"
+	"google.golang.org/appengine/log"
 	"strings"
 )
 
@@ -27,7 +27,7 @@ func uploadBq(ctx context.Context, bqStructs []CommonBqStruct) error {
 
 	//各BqStructを元にアップロードしていく
 	for i := 0; i < len(bqStructs); i++ {
-		log.Println("LET'S UPLOAD")
+		log.Infof(ctx, "LET'S UPLOAD: %v", bqStructs[i].tableName)
 		bqStruct := bqStructs[i]
 		uploader := dataset.Table(bqStruct.tableName).Uploader()
 		err := uploader.Put(ctx, bqStruct.data)
@@ -68,9 +68,9 @@ func deleteAndCreateBq(ctx context.Context, bqStructs []CommonBqStruct) (error) 
 		table := dataset.Table(bqStruct.tableName)
 		delErr := table.Delete(ctx)
 		if delErr != nil {
-			log.Println(delErr)
+			log.Errorf(ctx, "ERROR: %v", delErr)
 		}
-		log.Println("LET'S CREATE")
+		log.Infof(ctx, "LET'S CREATE: %v", bqStruct.tableName)
 		createErr := table.Create(ctx, &bigquery.TableMetadata{
 			Name:   bqStruct.tableName,
 			Schema: schema,
@@ -93,7 +93,7 @@ func hasData(ctx context.Context, tableName string, nameFilter string) bool {
 	client, err := bigquery.NewClient(ctx, config.Bq.Project)
 
 	if err != nil {
-		log.Printf("Failed to create client:%v", err)
+		log.Errorf(ctx, "Failed to create client:%v", err)
 	}
 
 	var query string
@@ -101,7 +101,7 @@ func hasData(ctx context.Context, tableName string, nameFilter string) bool {
 	query = strings.Replace(query, "<data_set>", config.Bq.Dataset, -1)
 	query = strings.Replace(query, "<table>", tableName, -1)
 	query = strings.Replace(query, "<nameFilter>", nameFilter, -1)
-	log.Println(query)
+	log.Infof(ctx, query)
 
 	// 引数で渡した文字列を元にQueryを生成
 	q := client.Query(query)
@@ -111,13 +111,13 @@ func hasData(ctx context.Context, tableName string, nameFilter string) bool {
 	it, readErr := q.Read(ctx)
 
 	if readErr != nil {
-		log.Println("Failed to Read Query:%v", readErr)
+		log.Errorf(ctx, "Failed to Read Query:%v", readErr)
 	}
 
 	var countData CountData
 	nextErr := it.Next(&countData)
 	if nextErr != nil {
-		log.Println(nextErr)
+		log.Errorf(ctx, "Failed to it.Next(&countData):%v", nextErr)
 		return true
 	}
 	if countData.count == 0 {

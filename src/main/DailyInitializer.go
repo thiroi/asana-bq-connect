@@ -3,7 +3,7 @@ package main
 import (
 	"net/http"
 	"fmt"
-	"log"
+	"google.golang.org/appengine/log"
 	"time"
 	"google.golang.org/appengine"
 	"os"
@@ -11,12 +11,12 @@ import (
 
 func DailyInitializer(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "Now Running!")
-	log.Println("===Start===")
+	ctx := appengine.NewContext(r)
+	log.Infof(ctx, "===Start===")
 	start_time := time.Now()
 	// initialization
-	log.Println("Now initializing...")
+	log.Infof(ctx, "Now initializing...")
 	initConfig()
-	ctx := appengine.NewContext(r)
 	initTableErr := deleteAndCreateBq(
 		ctx,
 		[]CommonBqStruct{
@@ -27,12 +27,12 @@ func DailyInitializer(w http.ResponseWriter, r *http.Request) {
 			{"user", User{}},
 		})
 	if(initTableErr != nil){
-		log.Printf("ERROR:", initTableErr)
+		log.Errorf(ctx, "ERROR: %v", initTableErr)
 		os.Exit(ERROR_DELETING)
 	}
-	log.Println("INITIALIZED!!!")
+	log.Infof(ctx, "INITIALIZED!!!")
 	end_time := time.Now()
 	total := end_time.Sub(start_time)
-	log.Printf("TOTAL TIME:%#v", total.Seconds())
-	log.Println("===End===")
+	log.Infof(ctx, "TOTAL TIME:%#v", total.Seconds())
+	log.Infof(ctx, "===End===")
 }
