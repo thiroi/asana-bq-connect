@@ -13,6 +13,8 @@ const (
 	SECTION_URL_KEY           = "SECTION_ID"
 	DELAYED_TAG_ID            = 770623178101952
 	UNEXPECTED_TAG_ID         = 770623178101955
+	HELP_TAG_ID               = 787690720822465
+	AWESOME_TAG_ID            = 787690720837384
 )
 
 type Task struct {
@@ -23,6 +25,8 @@ type Task struct {
 	AssigneeId  int64
 	Delayed     bool
 	Unexpected  bool
+	Help        bool
+	Awesome     bool
 	TagIds      string
 	Completed   bool
 	CompletedAt time.Time
@@ -112,6 +116,8 @@ func convertTask(projectId, sectionId int64, taskJson TaskJSON) (Task) {
 		AssigneeId:  taskJson.Assignee.Id,
 		Delayed:     hasTagId(jsonTagIds, DELAYED_TAG_ID),
 		Unexpected:  hasTagId(jsonTagIds, UNEXPECTED_TAG_ID),
+		Help:        hasTagId(jsonTagIds, HELP_TAG_ID),
+		Awesome:     hasTagId(jsonTagIds, AWESOME_TAG_ID),
 		TagIds:      tagIds,
 		Completed:   taskJson.Completed,
 		CompletedAt: taskJson.CompletedAt,

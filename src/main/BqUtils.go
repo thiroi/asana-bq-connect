@@ -101,7 +101,6 @@ func hasData(ctx context.Context, tableName string, nameFilter string) bool {
 	query = strings.Replace(query, "<data_set>", config.Bq.Dataset, -1)
 	query = strings.Replace(query, "<table>", tableName, -1)
 	query = strings.Replace(query, "<nameFilter>", nameFilter, -1)
-	log.Infof(ctx, query)
 
 	// 引数で渡した文字列を元にQueryを生成
 	q := client.Query(query)
