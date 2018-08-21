@@ -6,6 +6,7 @@ import (
 	"golang.org/x/net/context"
 	"strings"
 	"strconv"
+	"google.golang.org/appengine/log"
 )
 
 const (
@@ -37,7 +38,7 @@ func loadSectionsWithProjects(ctx context.Context, project Project) ([]Section, 
 	if loadErr != nil {
 		return nil, loadErr
 	}
-	wk, parseErr := parseBlobToSectionWithProjectId(project.Id, sectionsByte)
+	wk, parseErr := parseBlobToSectionWithProjectId(ctx, project.Id, sectionsByte)
 	if parseErr != nil {
 		return nil, parseErr
 	}
@@ -49,7 +50,7 @@ func makeSectionUrl(projectId int64) (string) {
 	return strings.Replace(GET_SECTION_WITH_PROJECT_URL, PROJECT_URL_KEY, strconv.Itoa(int(projectId)), -1)
 }
 
-func parseBlobToSectionWithProjectId(projectId int64, blob []byte) ([]Section, error) {
+func parseBlobToSectionWithProjectId(ctx context.Context, projectId int64, blob []byte) ([]Section, error) {
 	secJsons, err := parseBlobToSectionJSON(blob)
 	if err != nil {
 		return nil, err
@@ -57,7 +58,7 @@ func parseBlobToSectionWithProjectId(projectId int64, blob []byte) ([]Section, e
 
 	var sections []Section
 	for i := 0; i < len(secJsons); i++ {
-		wk := convertSection(projectId, secJsons[i])
+		wk := convertSection(ctx, projectId, secJsons[i])
 		sections = append(sections, wk)
 	}
 	return sections, nil
@@ -71,8 +72,8 @@ func parseBlobToSectionJSON(blob []byte) ([]SectionJSON, error) {
 	return swj.SectionJSONs, nil
 }
 
-func convertSection(projectId int64, secJson SectionJSON) (Section) {
-	name, point := splitNameAndPoint(secJson.Name)
+func convertSection(ctx context.Context, projectId int64, secJson SectionJSON) (Section) {
+	name, point := splitNameAndPoint(ctx, secJson.Name)
 	return Section{
 		ProjectId:  projectId,
 		Id:         secJson.Id,
@@ -82,15 +83,17 @@ func convertSection(projectId int64, secJson SectionJSON) (Section) {
 	}
 }
 
-func splitNameAndPoint(originalName string) (string, int64) {
+func splitNameAndPoint(ctx context.Context, originalName string) (string, int64) {
 	var lastIndex int
 	lastIndex = strings.LastIndex(originalName, " ")
 	if (lastIndex < 1) {
+		log.Warningf(ctx, "ストーリーポイントが読み取れないセクションです：" + originalName)
 		return originalName, 0
 	}
 	storyPointStr := originalName[lastIndex+1 : len(originalName)]
 	storyPoint, parseErr := strconv.ParseInt(storyPointStr, 10, 32)
 	if (parseErr != nil) {
+		log.Warningf(ctx, "ストーリーポイントが読み取れないセクションです：" + originalName)
 		return originalName, 0
 	}
 	return originalName[0:lastIndex], storyPoint
