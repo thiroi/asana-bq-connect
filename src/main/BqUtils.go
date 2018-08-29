@@ -85,7 +85,47 @@ func deleteAndCreateBq(ctx context.Context, bqStructs []CommonBqStruct) (error) 
 const BASIC_DATA_CHECK_QUERY = "SELECT COUNT(1) FROM `<project>.<data_set>.<table>` WHERE name = '<nameFilter>'"
 
 type CountData struct {
-	count int
+	Count int64      `json:"id,omitempty"`
+}
+
+func hasDataSimple(ctx context.Context, basicSQL string) bool {
+	// contextとprojectIDを元にBigQuery用のclientを生成
+	client, err := bigquery.NewClient(ctx, config.Bq.Project)
+
+	if err != nil {
+		log.Errorf(ctx, "Failed to create client:%v", err)
+	}
+
+	var query string
+	query = strings.Replace(basicSQL, "<project>", config.Bq.Project, -1)
+	query = strings.Replace(query, "<data_set>", config.Bq.Dataset, -1)
+
+
+	log.Infof(ctx, "QUERY SQL:" + query)
+	// 引数で渡した文字列を元にQueryを生成
+	q := client.Query(query)
+
+	log.Infof(ctx, "LAUNCH SQL")
+	// 実行のためのqueryをサービスに送信してIteratorを通じて結果を返す
+	// itはIterator
+	it, readErr := q.Read(ctx)
+
+	if readErr != nil {
+		log.Errorf(ctx, "Failed to Read Query:%v", readErr)
+	}
+
+	var countData CountData
+	nextErr := it.Next(&countData)
+	if nextErr != nil {
+		log.Errorf(ctx, "Failed to it.Next(&countData):%v", nextErr)
+		return true
+	}
+
+	if countData.Count == 0 {
+		return false
+	} else {
+		return true
+	}
 }
 
 func hasData(ctx context.Context, tableName string, nameFilter string) bool {
@@ -119,13 +159,52 @@ func hasData(ctx context.Context, tableName string, nameFilter string) bool {
 		log.Errorf(ctx, "Failed to it.Next(&countData):%v", nextErr)
 		return true
 	}
-	if countData.count == 0 {
+	if countData.Count == 0 {
 		return false
 	} else {
 		return true
 	}
 }
 
+func runQuery(ctx context.Context, basicSQL string){
+	// contextとprojectIDを元にBigQuery用のclientを生成
+	client, err := bigquery.NewClient(ctx, config.Bq.Project)
+	if err != nil {
+		log.Errorf(ctx, "Failed to create client:%v", err)
+	}
+
+	var query = strings.Replace(basicSQL, "<project>", config.Bq.Project, -1)
+	query = strings.Replace(query, "<data_set>", config.Bq.Dataset, -1)
+
+	// 引数で渡した文字列を元にQueryを生成
+	q := client.Query(query)
+
+	job, runErr := q.Run(ctx)
+	if runErr != nil {
+		log.Errorf(ctx, "Failed to RUNNING:%v", runErr)
+		log.Errorf(ctx, "FAILED SQL:%v", query)
+	}
+	if job.LastStatus().Err() != nil {
+		log.Errorf(ctx, "FAILED! JOB STATUS IS NOT GOOD:%v", job.LastStatus().Err())
+		log.Errorf(ctx, "FAILED SQL:%v", query)
+	}
+}
+
+func readQuery(ctx context.Context, basicSQL string)(*bigquery.RowIterator, error){
+	// contextとprojectIDを元にBigQuery用のclientを生成
+	client, err := bigquery.NewClient(ctx, config.Bq.Project)
+	if err != nil {
+		log.Errorf(ctx, "Failed to create client:%v", err)
+	}
+
+	var query = strings.Replace(basicSQL, "<project>", config.Bq.Project, -1)
+	query = strings.Replace(query, "<data_set>", config.Bq.Dataset, -1)
+
+	// 引数で渡した文字列を元にQueryを生成
+	q := client.Query(query)
+
+	return q.Read(ctx)
+}
 //type Sample struct {
 //	Id int
 //	Name string

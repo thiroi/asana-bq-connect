@@ -1,51 +1,100 @@
 cron:
 - description: "init Asana on Monday"
   url: /init
-  schedule: every monday 07:00
+  schedule: every monday 10:00
   timezone: Asia/Tokyo
 
 - description: "connect Asana on Monday"
   url: /connect
-  schedule: every monday 08:00
+  schedule: every monday 11:00
   timezone: Asia/Tokyo
+
+- description: "make progress on Monday"
+  url: /makeProgress
+  schedule: every monday 11:15
+  timezone: Asia/Tokyo
+
+- description: "notify on Monday"
+  url: /notify
+  schedule: every monday 11:30
+  timezone: Asia/Tokyo
+
 
 - description: "init Asana on Tuesday"
   url: /init
-  schedule: every tuesday 07:00
+  schedule: every tuesday 10:00
   timezone: Asia/Tokyo
 
 - description: "connect Asana on Tuesday"
   url: /connect
-  schedule: every tuesday 08:00
+  schedule: every tuesday 11:00
   timezone: Asia/Tokyo
-  
+
+- description: "make progress on Tuesday"
+  url: /makeProgress
+  schedule: every tuesday 11:30
+  timezone: Asia/Tokyo
+
+
 - description: "init Asana on Wednesday"
   url: /init
-  schedule: every wednesday 07:00
+  schedule: every wednesday 10:00
   timezone: Asia/Tokyo
 
 - description: "connect Asana on Wednesday"
   url: /connect
-  schedule: every wednesday 08:00
+  schedule: every wednesday 11:00
   timezone: Asia/Tokyo
+
+- description: "make progress on Wednesday"
+  url: /makeProgress
+  schedule: every wednesday 11:15
+  timezone: Asia/Tokyo
+
+- description: "notify on Wednesday"
+  url: /notify
+  schedule: every wednesday 11:30
+  timezone: Asia/Tokyo
+
 
 - description: "init Asana on Thursday"
   url: /init
-  schedule: every thursday 07:00
+  schedule: every thursday 10:00
   timezone: Asia/Tokyo
 
 - description: "connect Asana on Thursday"
   url: /connect
-  schedule: every thursday 08:00
+  schedule: every thursday 11:00
   timezone: Asia/Tokyo
+
+- description: "make progress on Thursday"
+  url: /makeProgress
+  schedule: every thursday 11:15
+  timezone: Asia/Tokyo
+
+- description: "notify on Thursday"
+  url: /notify
+  schedule: every thursday 11:30
+  timezone: Asia/Tokyo
+
 
 - description: "init Asana on Friday"
   url: /init
-  schedule: every friday 07:00
+  schedule: every friday 10:00
   timezone: Asia/Tokyo
 
 - description: "connect Asana on Friday"
   url: /connect
-  schedule: every friday 08:00
+  schedule: every friday 11:00
+  timezone: Asia/Tokyo
+
+- description: "make progress on Friday"
+  url: /makeProgress
+  schedule: every friday 11:15
+  timezone: Asia/Tokyo
+
+- description: "notify on Friday"
+  url: /notify
+  schedule: every friday 11:30
   timezone: Asia/Tokyo
 

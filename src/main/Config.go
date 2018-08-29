@@ -9,6 +9,7 @@ import (
 type Config struct {
 	Asana AsanaConfig
 	Bq BqConfig
+	Slack SlackConfig
 }
 
 type AsanaConfig struct {
@@ -18,6 +19,10 @@ type AsanaConfig struct {
 type BqConfig struct {
 	Project string
 	Dataset string
+}
+
+type SlackConfig struct {
+	Token string
 }
 
 var config Config

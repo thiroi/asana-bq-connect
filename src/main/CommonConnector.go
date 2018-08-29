@@ -12,7 +12,8 @@ import (
 
 func connect(w http.ResponseWriter, r *http.Request, projectPrefix string, history bool) {
 	fmt.Fprint(w, "Now Running!")
-	ctx := appengine.NewContext(r)
+	basicCtx := appengine.NewContext(r)
+	ctx, _ := context.WithTimeout(basicCtx, 60*time.Second)
 	log.Infof(ctx, "===Start===")
 	start_time := time.Now()
 	// initialization
