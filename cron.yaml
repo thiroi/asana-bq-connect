@@ -27,14 +27,13 @@ cron:
 
 - description: "connect Asana on Tuesday"
   url: /connect
-  schedule: every tuesday 11:00
+  schedule: every tuesday 10:30
   timezone: Asia/Tokyo
 
 - description: "make progress on Tuesday"
   url: /makeProgress
   schedule: every tuesday 11:30
   timezone: Asia/Tokyo
-
 
 - description: "init Asana on Wednesday"
   url: /init
@@ -96,5 +95,40 @@ cron:
 - description: "notify on Friday"
   url: /notify
   schedule: every friday 11:30
+  timezone: Asia/Tokyo
+
+- description: "init Asana on Saturday"
+  url: /init
+  schedule: every saturday 10:00
+  timezone: Asia/Tokyo
+
+- description: "connect Asana on Saturday"
+  url: /connect
+  schedule: every saturday 11:00
+  timezone: Asia/Tokyo
+
+- description: "make progress on Saturday"
+  url: /makeProgress
+  schedule: every saturday 11:15
+  timezone: Asia/Tokyo
+
+- description: "init Asana on Sunday"
+  url: /init
+  schedule: every sunday 10:00
+  timezone: Asia/Tokyo
+
+- description: "connect Asana on Sunday"
+  url: /connect
+  schedule: every sunday 11:00
+  timezone: Asia/Tokyo
+
+- description: "make progress on Sunday"
+  url: /makeProgress
+  schedule: every sunday 11:15
+  timezone: Asia/Tokyo
+
+- description: "make history" 
+  url: /connectHistory?sprint=Sprint-180927
+  schedule: 28 of sep 10:30
   timezone: Asia/Tokyo
 

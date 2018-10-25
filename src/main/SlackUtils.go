@@ -23,28 +23,16 @@ func SlackSender(w http.ResponseWriter, ctx *http.Request) {
 
 
 
-func sendNlope(ctx context.Context, message string){
+func sendNlope(ctx context.Context, message string, reporter Reporter){
 	log.Println("Start sending with nlope")
 	slack.SetHTTPClient(urlfetch.Client(ctx))
 	api := slack.New(config.Slack.Token)
 	params := slack.PostMessageParameters{}
-	//attachment := slack.Attachment{
-	//	Pretext: "",
-	//	Text:    message,
-	//	// Uncomment the following part to send a field too
-	//	/*
-	//		Fields: []slack.AttachmentField{
-	//			slack.AttachmentField{
-	//				Title: "a",
-	//				Value: "no",
-	//			},
-	//		},
-	//	*/
-	//}
-	//params.Attachments = []slack.Attachment{attachment}
-	params.IconEmoji = ":thx:"
-	params.Username = "ザキヤマ"
-	channelID, timestamp, err := api.PostMessage("times_hiroi", "========== \n" + message + "==========", params)
+	params.IconEmoji = reporter.Icon
+	params.Username = reporter.Name
+	message = reporter.Talk + "\n\n" + "======================================== \n" + message + "========================================"
+	log.Println(message)
+	channelID, timestamp, err := api.PostMessage("tec_growlio_dev", message, params)
 	if err != nil {
 		fmt.Printf("%s\n", err)
 		return
