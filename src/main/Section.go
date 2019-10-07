@@ -15,15 +15,15 @@ const (
 )
 
 type Section struct {
-	ProjectId  int64
-	Id         int64
+	ProjectId  string
+	Id         string
 	StoryPoint int64
 	Name       string
 	CreatedAt  time.Time
 }
 
 type SectionJSON struct {
-	Id        int64     `json:"id,omitempty"`
+	Id        string     `json:"gid,omitempty"`
 	Name      string    `json:"name,omitempty"`
 	CreatedAt time.Time `json:"created_at,omitempty"`
 }
@@ -46,11 +46,11 @@ func loadSectionsWithProjects(ctx context.Context, project Project) ([]Section, 
 	return sections, nil
 }
 
-func makeSectionUrl(projectId int64) (string) {
-	return strings.Replace(GET_SECTION_WITH_PROJECT_URL, PROJECT_URL_KEY, strconv.Itoa(int(projectId)), -1)
+func makeSectionUrl(projectId string) (string) {
+	return strings.Replace(GET_SECTION_WITH_PROJECT_URL, PROJECT_URL_KEY, projectId, -1)
 }
 
-func parseBlobToSectionWithProjectId(ctx context.Context, projectId int64, blob []byte) ([]Section, error) {
+func parseBlobToSectionWithProjectId(ctx context.Context, projectId string, blob []byte) ([]Section, error) {
 	secJsons, err := parseBlobToSectionJSON(blob)
 	if err != nil {
 		return nil, err
@@ -72,7 +72,7 @@ func parseBlobToSectionJSON(blob []byte) ([]SectionJSON, error) {
 	return swj.SectionJSONs, nil
 }
 
-func convertSection(ctx context.Context, projectId int64, secJson SectionJSON) (Section) {
+func convertSection(ctx context.Context, projectId string, secJson SectionJSON) (Section) {
 	name, point := splitNameAndPoint(ctx, secJson.Name)
 	return Section{
 		ProjectId:  projectId,

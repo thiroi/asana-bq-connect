@@ -10,7 +10,7 @@ const (
 )
 
 type User struct {
-	Id          int64      `json:"id,omitempty"`
+	Id          string      `json:"gid,omitempty"`
 	Name        string     `json:"name,omitempty"`
 }
 

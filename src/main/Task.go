@@ -3,7 +3,6 @@ package main
 import (
 	"golang.org/x/net/context"
 	"strings"
-	"strconv"
 	"encoding/json"
 	"time"
 )
@@ -11,18 +10,18 @@ import (
 const (
 	GET_TASK_WITH_SECTION_URL = "https://app.asana.com/api/1.0/sections/SECTION_ID/tasks?opt_fields=name,assignee,completed,completed_at,created_at,tags"
 	SECTION_URL_KEY           = "SECTION_ID"
-	DELAYED_TAG_ID            = 770623178101952
-	UNEXPECTED_TAG_ID         = 770623178101955
-	HELP_TAG_ID               = 787690720822465
-	AWESOME_TAG_ID            = 787690720837384
+	DELAYED_TAG_ID            = "770623178101952"
+	UNEXPECTED_TAG_ID         = "770623178101955"
+	HELP_TAG_ID               = "787690720822465"
+	AWESOME_TAG_ID            = "787690720837384"
 )
 
 type Task struct {
-	ProjectId   int64
-	SectionId   int64
-	Id          int64
+	ProjectId   string
+	SectionId   string
+	Id          string
 	Name        string
-	AssigneeId  int64
+	AssigneeId  string
 	Delayed     bool
 	Unexpected  bool
 	Help        bool
@@ -34,7 +33,7 @@ type Task struct {
 }
 
 type TaskJSON struct {
-	Id          int64     `json:"id,omitempty"`
+	Id          string    `json:"gid,omitempty"`
 	Name        string    `json:"name,omitempty"`
 	Completed   bool      `json:"completed,omitempty"`
 	CompletedAt time.Time `json:"completed_at,omitempty"`
@@ -44,11 +43,11 @@ type TaskJSON struct {
 }
 
 type TaskTag struct {
-	Id int64 `json:"id,omitempty"`
+	Id string `json:"gid,omitempty"`
 }
 
 type Assignee struct {
-	Id int64 `json:"id,omitempty"`
+	Id string `json:"gid,omitempty"`
 }
 
 type taskJSONWrap struct {
@@ -72,8 +71,8 @@ func loadTasksWithSections(ctx context.Context, sections []Section) ([]Task, err
 	return tasks, nil
 }
 
-func makeTaskUrl(sectionId int64) (string) {
-	return strings.Replace(GET_TASK_WITH_SECTION_URL, SECTION_URL_KEY, strconv.Itoa(int(sectionId)), -1)
+func makeTaskUrl(sectionId string) (string) {
+	return strings.Replace(GET_TASK_WITH_SECTION_URL, SECTION_URL_KEY, sectionId, -1)
 }
 
 func parseBlobToTaskWithSection(section Section, blob []byte) ([]Task, error) {
@@ -98,13 +97,13 @@ func parseBlobToTaskJSON(blob []byte) ([]TaskJSON, error) {
 	return tjw.TaskJSONs, nil
 }
 
-func convertTask(projectId, sectionId int64, taskJson TaskJSON) (Task) {
+func convertTask(projectId string, sectionId string, taskJson TaskJSON) (Task) {
 	jsonTagIds := taskJson.Tags
 	var tagIds string
 	if len(jsonTagIds) > 0 {
-		tagIds = strconv.Itoa(int(jsonTagIds[0].Id))
+		tagIds = jsonTagIds[0].Id
 		for i := 1; i < len(jsonTagIds); i++ {
-			tagIds = tagIds + "," + strconv.Itoa(int(jsonTagIds[i].Id))
+			tagIds = tagIds + "," + jsonTagIds[i].Id
 		}
 	}
 
@@ -125,7 +124,7 @@ func convertTask(projectId, sectionId int64, taskJson TaskJSON) (Task) {
 	}
 }
 
-func hasTagId(tags []TaskTag, tagId int64) bool {
+func hasTagId(tags []TaskTag, tagId string) bool {
 	for i := 0; i < len(tags); i++ {
 		if tags[i].Id == tagId {
 			return true

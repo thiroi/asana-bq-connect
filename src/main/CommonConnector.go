@@ -68,21 +68,6 @@ func connect(w http.ResponseWriter, r *http.Request, projectPrefix string, histo
 	log.Infof(ctx,"===End===")
 }
 
-//func loadTest(ctx context.Context){
-//	tasksByte, loadErr := loadAsana(ctx, makeTaskUrl(770468093387339))
-//	if(loadErr != nil){
-//		log.Println(loadErr)
-//	}
-//	taskJson, parseErr := parseBlobToTaskJSON(tasksByte)
-//	if(parseErr != nil){
-//		log.Println(parseErr)
-//	}
-//	log.Println("HERE IS Tag Number")
-//	log.Println(len(taskJson[1].Tags))
-//	log.Println("HERE IS TASK JSON")
-//	log.Printf("%+v\n", taskJson)
-//}
-
 func load(ctx context.Context, projectFilter string) (Project, []Section, []Task, []Tag, []User, error) {
 	log.Infof(ctx,"project loading...")
 	originalProjects, projectErr := loadProjects(ctx)
