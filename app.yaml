@@ -1,12 +1,8 @@
-application: f81-growlio-staging
-version: 0-0-1
-runtime: go
-api_version: go1
-threadsafe: true
-module: asana-connector
+runtime: go112
+service: asana-connector
 
 handlers:
 
 ## goapp
 - url: /.*
-  script: _go_app
+  script: auto
